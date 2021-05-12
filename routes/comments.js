@@ -17,8 +17,8 @@ router.get('/:id', async (req, res) => {
 
         const comments = await Comments.findById(req.params.id);
 
-        if (comments)
-            return res.status(400).send(`The flashcard with id "${req.params.id}" does not exist.`);
+        if (!comments)
+            return res.status(400).send(`The comment with id ${req.params.id} does not exist.`);
 
             return res.send(comments);
         
@@ -50,6 +50,7 @@ router.post('/', async (req, res) => {
         return res.status(500).send(`Internal Server Error: ${ex}`);
     }
 });
+
 
 router.put('/:id', async (req, res) => {
     try {
