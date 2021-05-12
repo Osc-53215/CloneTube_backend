@@ -1,4 +1,4 @@
-const {Comments, validate} = require('../models/Comments')
+const {Comments,Replies,  validateComments, validateReplies} = require('../models/Comments')
 const express = require('express');
 const router = express.Router();
 
@@ -30,7 +30,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const { error } = validate(req.body);
+        const { error } = validateComments(req.body);
         if (error)
         return res.status(400).send(error);
 
@@ -54,26 +54,22 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     try {
-        const { error } = validate(req.body);
-        if (error) return res.status(400).send(error);
 
-        const flashcard = await Flashcard.findByIdAndUpdate(
+        const comments = await Comments.findByIdAndUpdate(
             req.params.id,
             {
-                name: req.body.name,
-                category: req.body.category,
-                front: req.body.front,
-                back: req.body.back,
+                likes: req.body.likes,
+                dislikes: req.body.dislikes,
             },
             { new: true }
         );
 
-        if (!flashcard)
-            return res.status(400).send(`The flashcar with is "${req.params.id}" does not exist.`);
+        if (!comments)
+            return res.status(400).send(`The comment with is "${req.params.id}" does not exist.`);
 
-            await flashcard.save();
+            await comments.save();
 
-            return res.send(flashcard);  
+            return res.send(comments);  
     } catch (ex) {
         return res.status(500).send(`Internal Server Error: ${ex}`);
     }
