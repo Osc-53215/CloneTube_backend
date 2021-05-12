@@ -2,6 +2,7 @@ const {Comments,Replies,  validateComments, validateReplies} = require('../model
 const express = require('express');
 const router = express.Router();
 
+// GET all for comments
 
 router.get('/', async (req, res) => {
     try {
@@ -11,6 +12,8 @@ router.get('/', async (req, res) => {
         return res.status(500).send(`Internal Server Error: ${ex}`);
     }
 });
+
+//GET ID for comments
 
 router.get('/:id', async (req, res) => {
     try {
@@ -27,6 +30,7 @@ router.get('/:id', async (req, res) => {
     }
 }); 
 
+// POST route for comments
 
 router.post('/', async (req, res) => {
     try {
@@ -51,6 +55,7 @@ router.post('/', async (req, res) => {
     }
 });
 
+// PUT route for likes and dislikes
 
 router.put('/:id', async (req, res) => {
     try {
@@ -71,6 +76,47 @@ router.put('/:id', async (req, res) => {
 
             return res.send(comments);  
     } catch (ex) {
+        return res.status(500).send(`Internal Server Error: ${ex}`);
+    }
+});
+
+// PUT route for replies
+
+router.put('/:id', async (req, res) => {
+    try {
+
+        const comments = await Comments.findByIdAndUpdate(
+            req.params.id,
+            {
+                text: req.body.text,
+                likes: req.body.likes,
+                dislikes: req.body.dislikes,
+            },
+            { new: true }
+        );
+
+        if (!comments)
+            return res.status(400).send(`The comment with is "${req.params.id}" does not exist.`);
+
+            await comments.save();
+
+            return res.send(comments);  
+    } catch (ex) {
+        return res.status(500).send(`Internal Server Error: ${ex}`);
+    }
+});
+
+router.delete('/:id', async (req, res) => {
+    try {
+
+        const flashcard = await Flashcard.findByIdAndRemove(req.params.id);
+
+        if (!flashcard)
+            return res.status(400).send(`The product with id "${req.params.id}" does not exist.`);
+
+            return res.send(flashcard);
+    
+    }catch (ex) {
         return res.status(500).send(`Internal Server Error: ${ex}`);
     }
 });
