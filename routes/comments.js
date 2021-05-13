@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/:id', async (req, res) => {
     try {
 
-        const comments = await Comments.find({videoId: ""});
+        const comments = await Comments.find({videoId: req.params.id});
 
         if (!comments)
             return res.status(400).send(`The comment with id ${req.params.id} does not exist.`);
@@ -55,7 +55,7 @@ router.post('/:id', async (req, res) => {
 
         await replies.save();
 
-        return res.send(replies);
+        return res.send(Comments);
 
     }catch (ex) {
         return res.status(500).send(`Internal Server Error: ${ex}`);
