@@ -1,24 +1,14 @@
-const {Comments,Replies,  validateComments, validateReplies} = require('../models/Comments')
+const {Comments,Replies} = require('../models/Comments')
 const express = require('express');
 const router = express.Router();
 
-// GET all for comments
-
-router.get('/', async (req, res) => {
-    try {
-        const comments = await Comments.find();
-        return res.send(comments);
-    } catch (ex) {
-        return res.status(500).send(`Internal Server Error: ${ex}`);
-    }
-});
 
 //GET ID for comments
 
 router.get('/:id', async (req, res) => {
     try {
 
-        const comments = await Comments.findById(req.params.id);
+        const comments = await Comments.find({videoId: ""});
 
         if (!comments)
             return res.status(400).send(`The comment with id ${req.params.id} does not exist.`);
@@ -32,11 +22,8 @@ router.get('/:id', async (req, res) => {
 
 // POST route for comments
 
-router.post('/', async (req, res) => {
+router.post('/:id', async (req, res) => {
     try {
-        const { error } = validateComments(req.body);
-        if (error)
-        return res.status(400).send(error);
 
         const comments = new Comments({
             text: req.body.text,
@@ -49,6 +36,26 @@ router.post('/', async (req, res) => {
         await comments.save();
 
         return res.send(comments);
+
+    }catch (ex) {
+        return res.status(500).send(`Internal Server Error: ${ex}`);
+    }
+});
+
+//POST route for replies
+
+router.post('/:id', async (req, res) => {
+    try {
+
+        const replies = new Replies({
+            text: req.body.text,
+            likes: req.body.likes,
+            dislikes: req.body.dislikes,
+        });
+
+        await replies.save();
+
+        return res.send(replies);
 
     }catch (ex) {
         return res.status(500).send(`Internal Server Error: ${ex}`);
@@ -82,7 +89,7 @@ router.put('/:id', async (req, res) => {
 
 // PUT route for replies
 
-router.put('/:id', async (req, res) => {
+router.post('/:id', async (req, res) => {
     try {
 
         const comments = await Comments.findByIdAndUpdate(
@@ -102,36 +109,6 @@ router.put('/:id', async (req, res) => {
 
             return res.send(comments);  
     } catch (ex) {
-        return res.status(500).send(`Internal Server Error: ${ex}`);
-    }
-});
-
-router.delete('/:id', async (req, res) => {
-    try {
-
-        const flashcard = await Flashcard.findByIdAndRemove(req.params.id);
-
-        if (!flashcard)
-            return res.status(400).send(`The product with id "${req.params.id}" does not exist.`);
-
-            return res.send(flashcard);
-    
-    }catch (ex) {
-        return res.status(500).send(`Internal Server Error: ${ex}`);
-    }
-});
-
-router.delete('/:id', async (req, res) => {
-    try {
-
-        const flashcard = await Flashcard.findByIdAndRemove(req.params.id);
-
-        if (!flashcard)
-            return res.status(400).send(`The product with id "${req.params.id}" does not exist.`);
-
-            return res.send(flashcard);
-    
-    }catch (ex) {
         return res.status(500).send(`Internal Server Error: ${ex}`);
     }
 });
