@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
 
 // POST route for comments
 
-router.post('/:id', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
 
         const comments = new Comments({
@@ -52,10 +52,11 @@ router.post('/:id', async (req, res) => {
             likes: req.body.likes,
             dislikes: req.body.dislikes,
         });
-
-        await replies.save();
-
-        return res.send(Comments);
+        const comments = await Comments.findByIdAndUpdate(req.params.id);
+        comments.replies.push(replies);
+        await comments.save();
+        
+        return res.send(comments);
 
     }catch (ex) {
         return res.status(500).send(`Internal Server Error: ${ex}`);
@@ -87,31 +88,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// PUT route for replies
 
-router.post('/:id', async (req, res) => {
-    try {
-
-        const comments = await Comments.findByIdAndUpdate(
-            req.params.id,
-            {
-                text: req.body.text,
-                likes: req.body.likes,
-                dislikes: req.body.dislikes,
-            },
-            { new: true }
-        );
-
-        if (!comments)
-            return res.status(400).send(`The comment with is "${req.params.id}" does not exist.`);
-
-            await comments.save();
-
-            return res.send(comments);  
-    } catch (ex) {
-        return res.status(500).send(`Internal Server Error: ${ex}`);
-    }
-});
 
 
 module.exports = router;
